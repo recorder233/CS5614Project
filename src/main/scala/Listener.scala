@@ -5,7 +5,7 @@ class Listener extends SparkListener{
 
   override def onTaskEnd(taskEnd: SparkListenerTaskEnd): Unit = {
     //super.onTaskEnd(taskEnd)
-    println("Task finished: belongs to Stage: " + taskEnd.stageId)
+    println("Task finished: belongs to Stage: " + taskEnd.stageId + " Used: " + taskEnd.taskInfo.duration+" s, read: " + taskEnd.taskMetrics.shuffleWriteMetrics.bytesWritten)
     stages(taskEnd.stageId).addTask(new Task(taskEnd))
   }
 
@@ -22,7 +22,7 @@ class Listener extends SparkListener{
     stages = stages +(stageSubmitted.stageInfo.stageId -> new Stage(stageSubmitted))
   }
 
-  override def onApplicationEnd(applicationEnd: SparkListenerApplicationEnd): Unit = {
-    stages.foreach(println)
-  }
+//  override def onApplicationEnd(applicationEnd: SparkListenerApplicationEnd): Unit = {
+//    stages.foreach(println)
+//  }
 }
