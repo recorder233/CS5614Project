@@ -1,21 +1,21 @@
 import org.apache.spark.sql.SparkSession
+import org.apache.log4j.{Level, Logger};
 
 object SparkWordCount extends App {
-
+  Logger.getRootLogger.setLevel(Level.OFF)
   val spark = SparkSession.builder
     .master("local[*]")
     .appName("Spark Word Count")
     .getOrCreate()
 
-  val lines = spark.sparkContext.parallelize(
-    Seq("Spark Intellij Idea Scala test one",
-      "Spark Intellij Idea Scala test two",
-      "Spark Intellij Idea Scala test three"))
+  val listener = new Listener()
+  spark.sparkContext.addSparkListener(listener)
 
-  val counts = lines
-    .flatMap(line => line.split(" "))
-    .map(word => (word, 1))
-    .reduceByKey(_ + _)
+  val sc = spark.sparkContext
 
-  counts.foreach(println)
+  //val ticket_flight = spark.read.format("csv").option("sep", ",").option("header", "true").load("./src/main/data/ticket_flights.csv")
+  val ticket_flight = sc.textFile("./src/main/data/ticket_flights.csv")
+
+  val class_price = ticket_flight.map(x => (x.split(",")(2), x.split(",")(3).toInt))
+  class_price.groupByKey().mapValues(x => {x.sum / x.size}).collect().foreach(println)
 }
