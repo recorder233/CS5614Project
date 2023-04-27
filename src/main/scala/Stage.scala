@@ -18,6 +18,16 @@ class Stage(){
     tasks = tasks :+ task
   }
 
+  def getId() : Int = {
+    id
+  }
+  def getTasks(): Array[Task]= {
+      tasks
+  }
+
+  def getStageTime(): Long = {
+    completeTime - startTime
+  }
   def complete(stageCompleted: SparkListenerStageCompleted)={
     completed = true
     completeTime = stageCompleted.stageInfo.completionTime.get
@@ -28,5 +38,6 @@ class Stage(){
   private def averageTaskRuntime()={
      tasks.map(_.getDuration()).reduce(_ + _) / tasks.length
   }
+
 
 }

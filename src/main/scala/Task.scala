@@ -8,7 +8,6 @@ class Task(){
   private var duration: Long = -1
   private var readSize: Long = 0
 
-
   def this(taskEnd: SparkListenerTaskEnd) = {
     this()
     stageId = taskEnd.stageId
@@ -19,4 +18,5 @@ class Task(){
   }
 
   def getDuration() = duration
+
 }
