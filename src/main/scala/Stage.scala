@@ -39,5 +39,7 @@ class Stage(){
      tasks.map(_.getDuration()).reduce(_ + _) / tasks.length
   }
 
+  def getName() = name
+
 
 }
