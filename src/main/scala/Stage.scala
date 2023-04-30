@@ -69,17 +69,17 @@ class Stage(){
       val readDiff = math.abs(tasks(0).getReadSize() - tasks(1).getReadSize())
       val gcDiff = math.abs(tasks(0).getGcTime() - tasks(1).getGcTime())
       if( readDiff > 10 * 1024){
-        println ("Possible data skew in: "+ name)
+        println ("Possible data skew in stage "+ id +": "+ name)
         println("One task has " + (readDiff/1024) + "KiB more reads comparing to the other")
         println("It is taking %.2fs more than the other".format((timeDiff).toDouble / 1000))
       }
       else if(gcDiff > tasks(0).getGcTime() * 0.1 || gcDiff > tasks(1).getGcTime() * 0.1){
-        println("Possible memory skew in: "+ name)
+        println("Possible memory skew in stage "+ id +": "+ name)
         println("One task is taking %.2fs more on garbage collecting than the other".format(gcDiff.toDouble / 1000))
         println("It is taking %.2fs more in total than the other".format((timeDiff).toDouble / 1000))
       }
       else{
-        println("possible computation skew in: " + name)
+        println("possible computation skew in stage "+ id +": " + name)
         println("One task is taking %.2fs more than average".format((timeDiff).toDouble / 1000))
       }
 
@@ -90,7 +90,7 @@ class Stage(){
       val std = math.sqrt(variance)
       for (task <- tasks) {
         if (task.getReadSize() > average + std) {
-          println("Possible data skew in: " + name)
+          println("Possible data skew in stage "+ id +": " + name)
           println("One task has " + (task.getReadSize() - average) / 1024 + "KiB more reads comparing to average")
           println("It is taking %.2fs more than average".format((timeDiff).toDouble / 1000))
           return
@@ -101,13 +101,13 @@ class Stage(){
       val gcStd = math.sqrt(gcVariance)
       for (task <- tasks) {
         if(task.getGcTime() > gcAverage + gcStd){
-          println("Possible memory skew in: " + name)
+          println("Possible memory skew in stage "+ id +": " + name)
           println("One task is taking %.2fs more on garbage collecting than the average".format((task.getGcTime()-gcAverage).toDouble / 1000))
           println("It is taking %.2fs more in total than average".format((timeDiff).toDouble / 1000))
           return
         }
       }
-      println("possible computation skew in: " + name)
+      println("possible computation skew in stage "+ id +": " + name)
       println("One task is taking %.2fs more than average".format((timeDiff).toDouble / 1000))
     }
 
