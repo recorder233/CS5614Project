@@ -81,10 +81,10 @@ object SparkWordCount extends App {
   }
 
   def skewExample5() = {
-    val data = spark.sparkContext.parallelize(Seq.fill(1000000)(1))
+    val data = spark.sparkContext.parallelize(Seq.fill(150000000)(1))
     val skewedData = data.mapPartitionsWithIndex((index, part) =>{
       if (index == 0){
-        part ++ Seq.fill(1000000)(1)
+        part ++ Seq.fill(150000000)(1)
       }
       else{
         part
