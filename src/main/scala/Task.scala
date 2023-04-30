@@ -11,7 +11,7 @@ class Task(){
   private var readSize: Long = 0
   private var writeSize: Long = 0
   private var completed = false
-  private var rddIds = Array.empty[Long]
+  private var gcTime: Long = -1
 
   def this(taskStart: SparkListenerTaskStart) = {
     this()
@@ -29,6 +29,7 @@ class Task(){
     duration = taskEnd.taskInfo.duration
     readSize = taskEnd.taskMetrics.shuffleReadMetrics.totalBytesRead
     writeSize = taskEnd.taskMetrics.shuffleWriteMetrics.bytesWritten
+    gcTime = taskEnd.taskMetrics.jvmGCTime
     completed = true
 
   }
@@ -43,5 +44,6 @@ class Task(){
 
   def getTaskId() = taskId
 
+  def getGcTime() = gcTime
 
 }
