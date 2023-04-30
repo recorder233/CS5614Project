@@ -1,22 +1,36 @@
-import org.apache.spark.scheduler.SparkListenerTaskEnd
+import org.apache.spark.TaskContext
+import org.apache.spark.scheduler.{SparkListenerTaskEnd, SparkListenerTaskStart}
 
 class Task(){
 
   private var stageId = -1
+  private var taskId: Long = -1
   private var startTime: Long = -1
   private var endTime: Long = -1
   private var duration: Long = -1
   private var readSize: Long = 0
   private var writeSize: Long = 0
+  private var completed = false
+  private var rddIds = Array.empty[Long]
 
-  def this(taskEnd: SparkListenerTaskEnd) = {
+  def this(taskStart: SparkListenerTaskStart) = {
     this()
-    stageId = taskEnd.stageId
-    startTime = taskEnd.taskInfo.launchTime
+    stageId = taskStart.stageId
+    startTime = taskStart.taskInfo.launchTime
+    taskId = taskStart.taskInfo.taskId
+    //endTime = taskStart.taskInfo.finishTime
+    //duration = endTime - startTime
+    //readSize = taskStart.taskMetrics.shuffleReadMetrics.totalBytesRead
+    //writeSize = taskEnd.taskMetrics.shuffleWriteMetrics.bytesWritten
+  }
+
+  def end(taskEnd: SparkListenerTaskEnd) ={
     endTime = taskEnd.taskInfo.finishTime
-    duration = endTime - startTime
+    duration = taskEnd.taskInfo.duration
     readSize = taskEnd.taskMetrics.shuffleReadMetrics.totalBytesRead
     writeSize = taskEnd.taskMetrics.shuffleWriteMetrics.bytesWritten
+    completed = true
+
   }
 
   def getDuration() = duration
@@ -26,5 +40,8 @@ class Task(){
   def getWriteSize() = writeSize
 
   def getEndTime() = endTime
+
+  def getTaskId() = taskId
+
 
 }

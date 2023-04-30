@@ -1,7 +1,7 @@
 import org.apache.spark.sql.SparkSession
 import org.apache.log4j.{Level, Logger};
 
-object SparkWordCount extends App {
+object main extends App {
   Logger.getRootLogger.setLevel(Level.OFF)
   val spark = SparkSession.builder
     .master("local[*]")
