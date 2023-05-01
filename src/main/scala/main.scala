@@ -19,8 +19,8 @@ object main extends App {
 
   val sc = spark.sparkContext
   //skewExample1()
-  //skewExample5()
-  skewExample2()
+//  skewExample5()
+  skewExample6()
 
 
 //
@@ -91,8 +91,78 @@ object main extends App {
         part
       }
     })
-
     val sum = skewedData.reduce(_ + _)
     println(sum)
+  }
+
+  def skewExample6() = {
+    def distance(x: (Double, Double), y: (Double, Double)): Double = {
+      val R = 6373.0
+      val lat1 = math.toRadians(x._1)
+      val lon1 = math.toRadians(x._2)
+      val lat2 = math.toRadians(y._1)
+      val lon2 = math.toRadians(y._2)
+      val dlon = lon2 - lon1
+      val dlat = lat2 - lat1
+      // Haversine formula
+      val a = math.sin(dlat / 2) * math.sin(dlat / 2) +
+        math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) * math.sin(dlon / 2)
+      val c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+      R * c * 0.621371
+    }
+
+    def codeAndCoordinate(r: String): (String, (Double, Double)) = {
+      val splitData = r.split(",")
+      (splitData(0), (splitData(3).toDouble, splitData(4).toDouble))
+    }
+
+    def departAndID(r: String): (String, String) = {
+      val splitData = r.split(",")
+      (splitData(0), splitData(4))
+    }
+
+    def arrivalAndID(r: String): (String, String) = {
+      val splitData = r.split(",")
+      (splitData(0), splitData(5))
+    }
+
+    val airports_read = sc.textFile("./src/main/data/airports_data.csv")
+    val flights = sc.textFile("./src/main/data/flights.csv")
+    val numPartitions = 700
+
+    val airports_header = airports_read.first()
+    val airports_data = airports_read.filter(_ != airports_header)
+    val airports_filter = airports_data.map(codeAndCoordinate).repartition(numPartitions)
+    val departure_raw = flights.map(departAndID).repartition(200)
+    val departure_header = departure_raw.first()
+    val departure = departure_raw.filter(_ != departure_header)
+    val arrival_raw = flights.map(arrivalAndID).repartition(300)
+    val arrival_header = arrival_raw.first()
+    val arrival = arrival_raw.filter(_ != arrival_header)
+    println(arrival.collect())
+    Thread.sleep(3000)
+    val delayedArrival = airports_data.mapPartitionsWithIndex { (index, iter) =>
+      val delayPartitions = Set(2, 4, 6)
+      println("give me index"+ index)
+      if (delayPartitions.contains(index)) {
+        iter.map { r =>
+          println("yess")
+          Thread.sleep(6000)
+          r
+        }
+      } else {
+        iter
+      }
+    }
+    delayedArrival
+    val swap_departure = departure.map(x => (x._2, x._1)).repartition(200)
+    val joined_swap_departure = swap_departure.join(airports_filter)
+
+    val swap_arrival = arrival.map(x => (x._2, x._1))
+    val joined_swap_arrival = swap_arrival.join(airports_filter)
+
+    val joined_departure = joined_swap_departure.map(x => (x._2._1, (x._1, x._2._2)))
+
+    val num_flights = departure.groupByKey().count()
   }
 }
