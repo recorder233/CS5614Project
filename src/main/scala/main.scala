@@ -139,22 +139,19 @@ object main extends App {
     val arrival_raw = flights.map(arrivalAndID).repartition(300)
     val arrival_header = arrival_raw.first()
     val arrival = arrival_raw.filter(_ != arrival_header)
-    println(arrival.collect())
     Thread.sleep(3000)
     val delayedArrival = airports_data.mapPartitionsWithIndex { (index, iter) =>
-      val delayPartitions = Set(2, 4, 6)
-      println("give me index"+ index)
+      val delayPartitions = Set(0)
       if (delayPartitions.contains(index)) {
         iter.map { r =>
-          println("yess")
-          Thread.sleep(6000)
+          Thread.sleep(500)
           r
         }
       } else {
         iter
       }
     }
-    delayedArrival
+    delayedArrival.collect()
     val swap_departure = departure.map(x => (x._2, x._1)).repartition(200)
     val joined_swap_departure = swap_departure.join(airports_filter)
 
