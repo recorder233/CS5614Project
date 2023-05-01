@@ -19,7 +19,8 @@ object main extends App {
 
   val sc = spark.sparkContext
   //skewExample1()
-  skewExample5()
+  //skewExample5()
+  skewExample2()
 
 
 //
@@ -59,7 +60,7 @@ object main extends App {
   }
 
   def skewExample2()={
-    val ticket_flights = sc.textFile(("./src/main/data/ticket_flights.csv"))
+    val ticket_flights = sc.textFile(("./src/main/data/ticket_flights_copy.csv"))
     val class_price = ticket_flights.map(x =>(x.split(",")(2), x.split(",")(3).toInt))
     class_price.groupByKey().mapValues(x => x.sum / x.size).collect()
   }
