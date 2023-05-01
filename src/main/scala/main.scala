@@ -20,7 +20,7 @@ object main extends App {
   val sc = spark.sparkContext
   //skewExample1()
 //  skewExample5()
-  skewExample6()
+  skewExample7()
 
 
 //
@@ -92,6 +92,23 @@ object main extends App {
       }
     })
     val sum = skewedData.reduce(_ + _)
+    println(sum)
+  }
+
+  def skewExample7() = {
+    val data = spark.sparkContext.parallelize(Seq.fill(1000)(1))
+    val skewedData = data.mapPartitionsWithIndex((index, part) => {
+      if (index == 0) {
+        part ++ Seq.fill(1000)(1)
+      }
+      else {
+        part
+      }
+    })
+    val sum = skewedData.reduce((x, y) =>{
+      Thread.sleep(10)
+      x + y
+    })
     println(sum)
   }
 
