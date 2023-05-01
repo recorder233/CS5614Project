@@ -7,7 +7,7 @@ class Listener extends SparkListener{
   var stages = Map.empty[Int, Stage]
   override def onTaskEnd(taskEnd: SparkListenerTaskEnd): Unit = {
     //super.onTaskEnd(taskEnd)
-    println("Task " + taskEnd.taskInfo.taskId +" finished: belongs to Stage: " + taskEnd.stageId + " Used: " + taskEnd.taskInfo.duration+"s read: " + (taskEnd.taskMetrics.shuffleReadMetrics.totalBytesRead / 1024) + "KiB")
+    println("Task " + taskEnd.taskInfo.taskId +" finished: belongs to Stage: " + taskEnd.stageId + " Used: %.2fs".format(taskEnd.taskInfo.duration.toDouble / 1000)+" read: " + (taskEnd.taskMetrics.shuffleReadMetrics.totalBytesRead / 1024) + "KiB")
     stages(taskEnd.stageId).completeTask(taskEnd)
   }
 
