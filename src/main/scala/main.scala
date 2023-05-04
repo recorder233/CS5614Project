@@ -5,30 +5,18 @@ object main extends App {
   Logger.getRootLogger.setLevel(Level.OFF)
   val spark = SparkSession.builder
     .master("local[*]")
-//    .config("spark.executor.instances", 4)
-//    .master("yarn-client")
-//    .config("spark.executor.memory", "2g")
-//    .config("spark.executor.instances", "2")
-//    .config("spark.yarn.jars", "hdfs://C:/Users/wangm/AppData/Local/Coursier/cache/v1/https/repo1.maven.org/maven2/org/apache/spark/spark-catalyst_2.13/3.3.2/spark-catalyst_2.13-3.3.2.jar")
     .appName("Spark Word Count")
     .config("spark.ui.killEnabled", "false")
     .getOrCreate()
 
-  val listener = new Listener()
+  val listener = new SkewDetector()
   spark.sparkContext.addSparkListener(listener)
 
   val sc = spark.sparkContext
-  //skewExample1()
-//  skewExample5()
+
   skewExample7()
 
 
-//
-//  //val ticket_flight = spark.read.format("csv").option("sep", ",").option("header", "true").load("./src/main/data/ticket_flights.csv")
-//  val ticket_flight = sc.textFile("./src/main/data/ticket_flights.csv")
-//
-//  val class_price = ticket_flight.map(x => (x.split(",")(2), x.split(",")(3).toInt))
-//  class_price.groupByKey().mapValues(x => {x.sum / x.size}).collect().foreach(println)
 
 
 
@@ -96,20 +84,17 @@ object main extends App {
   }
 
   def skewExample7() = {
-    val data = spark.sparkContext.parallelize(Seq.fill(1000)(1))
+    val data = spark.sparkContext.parallelize(Seq.fill(100000)(1))
     val skewedData = data.mapPartitionsWithIndex((index, part) => {
       if (index == 0) {
-        part ++ Seq.fill(1000)(1)
+        Thread.sleep(1000)
+        part
       }
       else {
         part
       }
     })
-    val sum = skewedData.reduce((x, y) =>{
-      Thread.sleep(10)
-      x + y
-    })
-    println(sum)
+    skewedData.collect()
   }
 
   def skewExample6() = {

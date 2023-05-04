@@ -8,8 +8,8 @@ class Task(){
   private var startTime: Long = -1
   private var endTime: Long = -1
   private var duration: Long = -1
-  private var readSize: Long = 0
-  private var writeSize: Long = 0
+  private var readSize: Long = -1
+  private var writeSize: Long = -1
   private var completed = false
   private var gcTime: Long = -1
 
